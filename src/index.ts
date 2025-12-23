@@ -24,6 +24,14 @@ export class Path {
       return false;
     }
   }
+
+  isSymbolicLink(): boolean {
+    try {
+      return fs.lstatSync(this.#value).isSymbolicLink();
+    } catch {
+      return false;
+    }
+  }
 }
 
 export default function library(): string {
