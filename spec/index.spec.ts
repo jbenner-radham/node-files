@@ -56,4 +56,41 @@ describe('Path', () => {
       expect(pathWithSegments.isDirectory()).toBe(true);
     });
   });
+
+  describe('isFile', () => {
+    it('returns true for existing files', () => {
+      const filePath = new Path(filename);
+      expect(filePath.isFile()).toBe(true);
+    });
+
+    it('returns false for existing directories', () => {
+      const directoryPath = new Path(dirname);
+      expect(directoryPath.isFile()).toBe(false);
+    });
+
+    it('returns false for root directory', () => {
+      const rootPath = new Path('/');
+      expect(rootPath.isFile()).toBe(false);
+    });
+
+    it('returns false for non-existent paths', () => {
+      const nonExistentPath = new Path('/non/existent/path/12345');
+      expect(nonExistentPath.isFile()).toBe(false);
+    });
+
+    it('returns false for empty path (resolves to current directory)', () => {
+      const emptyPath = new Path('');
+      expect(emptyPath.isFile()).toBe(false);
+    });
+
+    it('works with path segments to files', () => {
+      const filePathWithSegments = new Path(dirname, '..', 'src', 'index.ts');
+      expect(filePathWithSegments.isFile()).toBe(true);
+    });
+
+    it('works with path segments to directories', () => {
+      const directoryPathWithSegments = new Path(dirname, '..', 'src');
+      expect(directoryPathWithSegments.isFile()).toBe(false);
+    });
+  });
 });

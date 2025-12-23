@@ -16,6 +16,14 @@ export class Path {
       return false;
     }
   }
+
+  isFile(): boolean {
+    try {
+      return fs.statSync(this.#value).isFile();
+    } catch {
+      return false;
+    }
+  }
 }
 
 export default function library(): string {
