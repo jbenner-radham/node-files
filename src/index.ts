@@ -17,6 +17,10 @@ export class Path {
     return fs.existsSync(this.#value);
   }
 
+  get extension(): string {
+    return path.extname(this.#value);
+  }
+
   isDirectory(): boolean {
     try {
       return fs.statSync(this.#value).isDirectory();

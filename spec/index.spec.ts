@@ -288,4 +288,66 @@ describe('Path', () => {
       }
     });
   });
+
+  describe('extension', () => {
+    it('returns the extension for files with extensions', () => {
+      const filePath = new Path(filename);
+      expect(filePath.extension).toBe(path.extname(filename));
+    });
+
+    it('returns the extension for TypeScript files', () => {
+      const typeScriptFilePath = new Path(dirname, '..', 'src', 'index.ts');
+      expect(typeScriptFilePath.extension).toBe('.ts');
+    });
+
+    it('returns the extension for JavaScript files', () => {
+      const javaScriptFilePath = new Path('script.js');
+      expect(javaScriptFilePath.extension).toBe('.js');
+    });
+
+    it('returns empty string for files without extensions', () => {
+      const fileWithoutExtension = new Path('README');
+      expect(fileWithoutExtension.extension).toBe('');
+    });
+
+    it('returns empty string for directories', () => {
+      const directoryPath = new Path(dirname);
+      expect(directoryPath.extension).toBe('');
+    });
+
+    it('returns empty string for root directory', () => {
+      const rootPath = new Path('/');
+      expect(rootPath.extension).toBe('');
+    });
+
+    it('returns empty string for empty path', () => {
+      const emptyPath = new Path('');
+      expect(emptyPath.extension).toBe('');
+    });
+
+    it('returns the extension for paths with multiple dots', () => {
+      const multiDotPath = new Path('file.min.js');
+      expect(multiDotPath.extension).toBe('.js');
+    });
+
+    it('returns empty string for hidden files without extensions', () => {
+      const hiddenFile = new Path('.gitignore');
+      expect(hiddenFile.extension).toBe('');
+    });
+
+    it('returns the extension for hidden files with extensions', () => {
+      const hiddenFileWithExtension = new Path('.eslintrc.js');
+      expect(hiddenFileWithExtension.extension).toBe('.js');
+    });
+
+    it('works with path segments', () => {
+      const pathWithSegments = new Path('/usr', 'local', 'bin', 'node.exe');
+      expect(pathWithSegments.extension).toBe('.exe');
+    });
+
+    it('returns "." for paths ending with a dot', () => {
+      const pathEndingWithDot = new Path('file.');
+      expect(pathEndingWithDot.extension).toBe('.');
+    });
+  });
 });
