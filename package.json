@@ -31,7 +31,7 @@
   ],
   "scripts": {
     "prebuild": "rimraf ./dist",
-    "build": "duo-build",
+    "build": "duo-build --packages external --platform node",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prepare": "husky",
