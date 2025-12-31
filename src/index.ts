@@ -13,6 +13,10 @@ export class Path {
     return path.dirname(this.#value);
   }
 
+  get exists(): boolean {
+    return fs.existsSync(this.#value);
+  }
+
   isDirectory(): boolean {
     try {
       return fs.statSync(this.#value).isDirectory();

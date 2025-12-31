@@ -213,4 +213,79 @@ describe('Path', () => {
       expect(emptyPath.directoryName).toBe('.');
     });
   });
+
+  describe('exists', () => {
+    it('returns true for existing files', () => {
+      const filePath = new Path(filename);
+      expect(filePath.exists).toBe(true);
+    });
+
+    it('returns true for existing directories', () => {
+      const directoryPath = new Path(dirname);
+      expect(directoryPath.exists).toBe(true);
+    });
+
+    it('returns true for root directory', () => {
+      const rootPath = new Path('/');
+      expect(rootPath.exists).toBe(true);
+    });
+
+    it('returns false for non-existent paths', () => {
+      const nonExistentPath = new Path('/non/existent/path/12345');
+      expect(nonExistentPath.exists).toBe(false);
+    });
+
+    it('returns true for empty path (resolves to current directory)', () => {
+      const emptyPath = new Path('');
+      expect(emptyPath.exists).toBe(true);
+    });
+
+    it('returns true for temporary directory', () => {
+      const temporaryDirectory = new Path(tmpdir());
+      expect(temporaryDirectory.exists).toBe(true);
+    });
+
+    it('returns true for relative paths that exist', () => {
+      const relativePath = new Path('.');
+      expect(relativePath.exists).toBe(true);
+    });
+
+    it('returns true for paths with segments that exist', () => {
+      const pathWithSegments = new Path(dirname, '..', 'src');
+      expect(pathWithSegments.exists).toBe(true);
+    });
+
+    it('returns true for symbolic links', () => {
+      const testDirectory = path.join(tmpdir(), `test-exists-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+      const targetFile = path.join(testDirectory, 'target.txt');
+      const symlinkFile = path.join(testDirectory, 'link.txt');
+      fs.writeFileSync(targetFile, 'test');
+      fs.symlinkSync(targetFile, symlinkFile);
+
+      try {
+        const symlinkPath = new Path(symlinkFile);
+        expect(symlinkPath.exists).toBe(true);
+      } finally {
+        fs.unlinkSync(symlinkFile);
+        fs.unlinkSync(targetFile);
+        fs.rmdirSync(testDirectory);
+      }
+    });
+
+    it('returns false for broken symbolic links', () => {
+      const testDirectory = path.join(tmpdir(), `test-exists-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+      const symlinkFile = path.join(testDirectory, 'broken-link.txt');
+      fs.symlinkSync('/non/existent/target', symlinkFile);
+
+      try {
+        const brokenSymlinkPath = new Path(symlinkFile);
+        expect(brokenSymlinkPath.exists).toBe(false);
+      } finally {
+        fs.unlinkSync(symlinkFile);
+        fs.rmdirSync(testDirectory);
+      }
+    });
+  });
 });
