@@ -170,4 +170,47 @@ describe('Path', () => {
       }
     });
   });
+
+  describe('directoryName', () => {
+    it('returns the directory name for file paths', () => {
+      const filePath = new Path(filename);
+      expect(filePath.directoryName).toBe(dirname);
+    });
+
+    it('returns the directory name for directory paths', () => {
+      const directoryPath = new Path(dirname);
+      expect(directoryPath.directoryName).toBe(path.dirname(dirname));
+    });
+
+    it('returns the parent directory for nested file paths', () => {
+      const nestedFilePath = new Path(dirname, '..', 'src', 'index.ts');
+      expect(nestedFilePath.directoryName).toBe(path.join(dirname, '..', 'src'));
+    });
+
+    it('returns "." for files in current directory', () => {
+      const currentDirectoryFile = new Path('file.txt');
+      expect(currentDirectoryFile.directoryName).toBe('.');
+    });
+
+    it('returns the directory name for root paths', () => {
+      const rootPath = new Path('/');
+      expect(rootPath.directoryName).toBe('/');
+    });
+
+    it('returns the directory name for paths with segments', () => {
+      const pathWithSegments = new Path('/usr', 'local', 'bin', 'node');
+      expect(pathWithSegments.directoryName).toBe(path.join(path.sep, 'usr', 'local', 'bin'));
+    });
+
+    it('works with relative paths', () => {
+      const relativePath = new Path('..', 'src', 'index.ts');
+      const expectedDirectory = path.dirname(path.join('..', 'src', 'index.ts'));
+      expect(relativePath.directoryName).toBe(expectedDirectory);
+    });
+
+    it('returns "." for empty path', () => {
+      const emptyPath = new Path('');
+      expect(emptyPath.directoryName).toBe('.');
+    });
+  });
 });

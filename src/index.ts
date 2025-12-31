@@ -9,6 +9,10 @@ export class Path {
     this.#value = path.join(...paths.map(toString));
   }
 
+  get directoryName(): string {
+    return path.dirname(this.#value);
+  }
+
   isDirectory(): boolean {
     try {
       return fs.statSync(this.#value).isDirectory();
