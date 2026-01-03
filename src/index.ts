@@ -25,6 +25,14 @@ export class Path {
     return new Path(this.directoryName);
   }
 
+  contents(): fs.Dirent[] | string {
+    const encoding = 'utf-8';
+
+    return this.isFile()
+      ? fs.readFileSync(this.#value, { encoding })
+      : fs.readdirSync(this.#value, { encoding, withFileTypes: true });
+  }
+
   isDirectory(): boolean {
     try {
       return fs.statSync(this.#value).isDirectory();
@@ -49,8 +57,8 @@ export class Path {
     }
   }
 
-  contents(): string {
-    return fs.readFileSync(this.#value, 'utf-8');
+  toString(): string {
+    return this.#value;
   }
 }
 

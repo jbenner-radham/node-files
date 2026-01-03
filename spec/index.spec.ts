@@ -492,9 +492,63 @@ describe('Path', () => {
       expect(() => nonExistentPath.contents()).toThrow();
     });
 
-    it('throws an error for directories', () => {
-      const directoryPath = new Path(dirname);
-      expect(() => directoryPath.contents()).toThrow();
+    it('returns directory entries for directories', () => {
+      const testDirectory = path.join(tmpdir(), `test-contents-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+      const testFile = path.join(testDirectory, 'file.txt');
+      const subDirectory = path.join(testDirectory, 'subdir');
+      fs.writeFileSync(testFile, 'test');
+      fs.mkdirSync(subDirectory);
+
+      try {
+        const directoryPath = new Path(testDirectory);
+        const contents = directoryPath.contents();
+        expect(Array.isArray(contents)).toBe(true);
+        expect(contents).toHaveLength(2);
+        const names = (contents as fs.Dirent[]).map(entry => entry.name);
+        expect(names).toContain('file.txt');
+        expect(names).toContain('subdir');
+      } finally {
+        fs.rmdirSync(subDirectory);
+        fs.unlinkSync(testFile);
+        fs.rmdirSync(testDirectory);
+      }
+    });
+
+    it('returns Dirent objects with correct types for directory contents', () => {
+      const testDirectory = path.join(tmpdir(), `test-contents-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+      const testFile = path.join(testDirectory, 'file.txt');
+      const subDirectory = path.join(testDirectory, 'subdir');
+      fs.writeFileSync(testFile, 'test');
+      fs.mkdirSync(subDirectory);
+
+      try {
+        const directoryPath = new Path(testDirectory);
+        const contents = directoryPath.contents() as fs.Dirent[];
+        const fileEntry = contents.find(entry => entry.name === 'file.txt');
+        const directoryEntry = contents.find(entry => entry.name === 'subdir');
+        expect(fileEntry?.isFile()).toBe(true);
+        expect(directoryEntry?.isDirectory()).toBe(true);
+      } finally {
+        fs.rmdirSync(subDirectory);
+        fs.unlinkSync(testFile);
+        fs.rmdirSync(testDirectory);
+      }
+    });
+
+    it('returns empty array for empty directories', () => {
+      const testDirectory = path.join(tmpdir(), `test-contents-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+
+      try {
+        const directoryPath = new Path(testDirectory);
+        const contents = directoryPath.contents();
+        expect(Array.isArray(contents)).toBe(true);
+        expect(contents).toHaveLength(0);
+      } finally {
+        fs.rmdirSync(testDirectory);
+      }
     });
 
     it('reads the current test file correctly', () => {
