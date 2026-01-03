@@ -350,4 +350,157 @@ describe('Path', () => {
       expect(pathEndingWithDot.extension).toBe('.');
     });
   });
+
+  describe('parentDirectory', () => {
+    it('returns a Path instance for the parent directory of a file', () => {
+      const filePath = new Path(filename);
+      const parentPath = filePath.parentDirectory;
+      expect(parentPath).toBeInstanceOf(Path);
+      expect(parentPath.directoryName).toBe(path.dirname(dirname));
+    });
+
+    it('returns a Path instance for the parent directory of a directory', () => {
+      const directoryPath = new Path(dirname);
+      const parentPath = directoryPath.parentDirectory;
+      expect(parentPath).toBeInstanceOf(Path);
+      expect(parentPath.directoryName).toBe(path.dirname(path.dirname(dirname)));
+    });
+
+    it('returns a Path instance for nested file paths', () => {
+      const nestedFilePath = new Path(dirname, '..', 'src', 'index.ts');
+      const parentPath = nestedFilePath.parentDirectory;
+      expect(parentPath).toBeInstanceOf(Path);
+      const expectedParentDirectory = path.dirname(path.join(dirname, '..', 'src'));
+      expect(parentPath.directoryName).toBe(expectedParentDirectory);
+    });
+
+    it('returns a Path instance for files in current directory', () => {
+      const currentDirectoryFile = new Path('file.txt');
+      const parentPath = currentDirectoryFile.parentDirectory;
+      expect(parentPath).toBeInstanceOf(Path);
+      expect(parentPath.directoryName).toBe('.');
+    });
+
+    it('returns a Path instance for root paths', () => {
+      const rootPath = new Path('/');
+      const parentPath = rootPath.parentDirectory;
+      expect(parentPath).toBeInstanceOf(Path);
+      expect(parentPath.directoryName).toBe('/');
+    });
+
+    it('returns a Path instance for paths with segments', () => {
+      const pathWithSegments = new Path('/usr', 'local', 'bin', 'node');
+      const parentPath = pathWithSegments.parentDirectory;
+      expect(parentPath).toBeInstanceOf(Path);
+      const expectedParentDirectory = path.dirname(path.join(path.sep, 'usr', 'local', 'bin'));
+      expect(parentPath.directoryName).toBe(expectedParentDirectory);
+    });
+
+    it('works with relative paths', () => {
+      const relativePath = new Path('..', 'src', 'index.ts');
+      const parentPath = relativePath.parentDirectory;
+      expect(parentPath).toBeInstanceOf(Path);
+      const expectedParentDirectory = path.dirname(
+        path.dirname(path.join('..', 'src', 'index.ts'))
+      );
+      expect(parentPath.directoryName).toBe(expectedParentDirectory);
+    });
+
+    it('returns a Path instance for empty path', () => {
+      const emptyPath = new Path('');
+      const parentPath = emptyPath.parentDirectory;
+      expect(parentPath).toBeInstanceOf(Path);
+      expect(parentPath.directoryName).toBe('.');
+    });
+
+    it('allows chaining parentDirectory calls', () => {
+      const filePath = new Path(dirname, '..', 'src', 'index.ts');
+      const parentPath = filePath.parentDirectory;
+      const grandparentPath = parentPath.parentDirectory;
+      expect(grandparentPath).toBeInstanceOf(Path);
+      const expectedGrandparentDirectory = path.dirname(
+        path.dirname(path.join(dirname, '..', 'src'))
+      );
+      expect(grandparentPath.directoryName).toBe(expectedGrandparentDirectory);
+    });
+  });
+
+  describe('contents', () => {
+    it('returns the contents of an existing file', () => {
+      const testDirectory = path.join(tmpdir(), `test-contents-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+      const testFile = path.join(testDirectory, 'test.txt');
+      fs.writeFileSync(testFile, 'Hello, World!');
+
+      try {
+        const filePath = new Path(testFile);
+        expect(filePath.contents()).toBe('Hello, World!');
+      } finally {
+        fs.unlinkSync(testFile);
+        fs.rmdirSync(testDirectory);
+      }
+    });
+
+    it('returns contents with multiple lines', () => {
+      const testDirectory = path.join(tmpdir(), `test-contents-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+      const testFile = path.join(testDirectory, 'multiline.txt');
+      const multilineContent = 'Line 1\nLine 2\nLine 3';
+      fs.writeFileSync(testFile, multilineContent);
+
+      try {
+        const filePath = new Path(testFile);
+        expect(filePath.contents()).toBe(multilineContent);
+      } finally {
+        fs.unlinkSync(testFile);
+        fs.rmdirSync(testDirectory);
+      }
+    });
+
+    it('returns empty string for empty files', () => {
+      const testDirectory = path.join(tmpdir(), `test-contents-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+      const testFile = path.join(testDirectory, 'empty.txt');
+      fs.writeFileSync(testFile, '');
+
+      try {
+        const filePath = new Path(testFile);
+        expect(filePath.contents()).toBe('');
+      } finally {
+        fs.unlinkSync(testFile);
+        fs.rmdirSync(testDirectory);
+      }
+    });
+
+    it('works with path segments', () => {
+      const testDirectory = path.join(tmpdir(), `test-contents-${Date.now()}`);
+      fs.mkdirSync(testDirectory, { recursive: true });
+      const testFile = path.join(testDirectory, 'test.txt');
+      fs.writeFileSync(testFile, 'path segments test');
+
+      try {
+        const filePath = new Path(testDirectory, 'test.txt');
+        expect(filePath.contents()).toBe('path segments test');
+      } finally {
+        fs.unlinkSync(testFile);
+        fs.rmdirSync(testDirectory);
+      }
+    });
+
+    it('throws an error for non-existent files', () => {
+      const nonExistentPath = new Path('/non/existent/path/12345.txt');
+      expect(() => nonExistentPath.contents()).toThrow();
+    });
+
+    it('throws an error for directories', () => {
+      const directoryPath = new Path(dirname);
+      expect(() => directoryPath.contents()).toThrow();
+    });
+
+    it('reads the current test file correctly', () => {
+      const testFilePath = new Path(filename);
+      const contents = testFilePath.contents();
+      expect(contents).toContain("describe('contents'");
+    });
+  });
 });

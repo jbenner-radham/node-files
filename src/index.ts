@@ -21,6 +21,11 @@ export class Path {
     return path.extname(this.#value);
   }
 
+  get parentDirectory(): Path {
+    // return new Path(path.dirname(this.#value));
+    return new Path(this.directoryName);
+  }
+
   isDirectory(): boolean {
     try {
       return fs.statSync(this.#value).isDirectory();
@@ -43,6 +48,10 @@ export class Path {
     } catch {
       return false;
     }
+  }
+
+  contents(): string {
+    return fs.readFileSync(this.#value, 'utf-8');
   }
 }
 
