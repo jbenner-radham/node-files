@@ -15,6 +15,7 @@ This is a Node.js library that provides a `Path` class for working with file sys
 - **Private Fields**: Use `#` prefix for private class fields (e.g., `#value`)
 - **Paradigm**: Utilize a functional programming style when possible.
 - **Abbreviations**: Avoid using abbreviations when naming things if possible.
+- **Line Length**: Line length should be limited to 100.
 
 ## Project Structure
 
