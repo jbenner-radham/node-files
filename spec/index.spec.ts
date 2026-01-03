@@ -351,24 +351,24 @@ describe('Path', () => {
     });
   });
 
-  describe('parentDirectory', () => {
+  describe('parent', () => {
     it('returns a Path instance for the parent directory of a file', () => {
       const filePath = new Path(filename);
-      const parentPath = filePath.parentDirectory;
+      const parentPath = filePath.parent;
       expect(parentPath).toBeInstanceOf(Path);
       expect(parentPath.directoryName).toBe(path.dirname(dirname));
     });
 
     it('returns a Path instance for the parent directory of a directory', () => {
       const directoryPath = new Path(dirname);
-      const parentPath = directoryPath.parentDirectory;
+      const parentPath = directoryPath.parent;
       expect(parentPath).toBeInstanceOf(Path);
       expect(parentPath.directoryName).toBe(path.dirname(path.dirname(dirname)));
     });
 
     it('returns a Path instance for nested file paths', () => {
       const nestedFilePath = new Path(dirname, '..', 'src', 'index.ts');
-      const parentPath = nestedFilePath.parentDirectory;
+      const parentPath = nestedFilePath.parent;
       expect(parentPath).toBeInstanceOf(Path);
       const expectedParentDirectory = path.dirname(path.join(dirname, '..', 'src'));
       expect(parentPath.directoryName).toBe(expectedParentDirectory);
@@ -376,21 +376,21 @@ describe('Path', () => {
 
     it('returns a Path instance for files in current directory', () => {
       const currentDirectoryFile = new Path('file.txt');
-      const parentPath = currentDirectoryFile.parentDirectory;
+      const parentPath = currentDirectoryFile.parent;
       expect(parentPath).toBeInstanceOf(Path);
       expect(parentPath.directoryName).toBe('.');
     });
 
     it('returns a Path instance for root paths', () => {
       const rootPath = new Path('/');
-      const parentPath = rootPath.parentDirectory;
+      const parentPath = rootPath.parent;
       expect(parentPath).toBeInstanceOf(Path);
       expect(parentPath.directoryName).toBe('/');
     });
 
     it('returns a Path instance for paths with segments', () => {
       const pathWithSegments = new Path('/usr', 'local', 'bin', 'node');
-      const parentPath = pathWithSegments.parentDirectory;
+      const parentPath = pathWithSegments.parent;
       expect(parentPath).toBeInstanceOf(Path);
       const expectedParentDirectory = path.dirname(path.join(path.sep, 'usr', 'local', 'bin'));
       expect(parentPath.directoryName).toBe(expectedParentDirectory);
@@ -398,7 +398,7 @@ describe('Path', () => {
 
     it('works with relative paths', () => {
       const relativePath = new Path('..', 'src', 'index.ts');
-      const parentPath = relativePath.parentDirectory;
+      const parentPath = relativePath.parent;
       expect(parentPath).toBeInstanceOf(Path);
       const expectedParentDirectory = path.dirname(
         path.dirname(path.join('..', 'src', 'index.ts'))
@@ -408,20 +408,20 @@ describe('Path', () => {
 
     it('returns a Path instance for empty path', () => {
       const emptyPath = new Path('');
-      const parentPath = emptyPath.parentDirectory;
+      const parentPath = emptyPath.parent;
       expect(parentPath).toBeInstanceOf(Path);
       expect(parentPath.directoryName).toBe('.');
     });
 
-    it('allows chaining parentDirectory calls', () => {
+    it('allows chaining parent calls', () => {
       const filePath = new Path(dirname, '..', 'src', 'index.ts');
-      const parentPath = filePath.parentDirectory;
-      const grandparentPath = parentPath.parentDirectory;
+      const parentPath = filePath.parent;
+      const grandparentPath = parentPath.parent;
       expect(grandparentPath).toBeInstanceOf(Path);
-      const expectedGrandparentDirectory = path.dirname(
+      const expectedGrandparent = path.dirname(
         path.dirname(path.join(dirname, '..', 'src'))
       );
-      expect(grandparentPath.directoryName).toBe(expectedGrandparentDirectory);
+      expect(grandparentPath.directoryName).toBe(expectedGrandparent);
     });
   });
 

@@ -21,8 +21,7 @@ export class Path {
     return path.extname(this.#value);
   }
 
-  get parentDirectory(): Path {
-    // return new Path(path.dirname(this.#value));
+  get parent(): Path {
     return new Path(this.directoryName);
   }
 
